@@ -6,21 +6,33 @@ function submitBirthday() {
         return;
     }
 
+    const digits = bday.replace(/-/g, '').split('').map(Number);
+    const sum = digits.reduce((a, b) => a + b, 0);
+    const masterNumbers = [11, 22, 33];
+    let main;
+    if (masterNumbers.includes(sum)) {
+        main = sum;
+    } else {
+        let temp = sum;
+        while (temp >= 10) {
+            temp = temp.toString().split('').reduce((a, b) => a + Number(b), 0);
+        }
+        main = temp;
+    }
+
     const date = new Date(bday);
-    const digits = bday.replace(/-/g, '').split('');
-    const main = digits.reduce((a, b) => a + parseInt(b), 0) % 9 || 9;
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const zodiac = getZodiac(month, day);
+
     const today = new Date();
     const flow = (today.getDate() + today.getMonth() + 1 + today.getFullYear()) % 9 || 9;
 
-    const query = `主數=${main}&星座=${zodiac}&流日=${flow}`;
-    document.getElementById("result").textContent = `正在查詢：${query}`;
-    // 模擬查詢結果（實際部署時會連接 n8n webhook）
-    setTimeout(() => {
-        document.getElementById("result").textContent = `✨ ${zodiac} 今日命運之鑰：主數 ${main}、流日 ${flow}`;
-    }, 1000);
+    // 清除預設顯示，未來可由 webhook 回傳內容更新
+    document.getElementById("result").textContent = "";
+
+    // 可在此加入 webhook 呼叫（未來接 n8n）
+    console.log({ 主數: main, 星座: zodiac, 流日: flow });
 }
 
 function getZodiac(month, day) {
