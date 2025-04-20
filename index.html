@@ -10,7 +10,7 @@
     <div class="container">
         <h1>🔮 Celestial Key 命理解說查詢入口</h1>
         <p>請輸入你的生日，我們將自動計算主數、星座與流日，帶你打開今日命運之鑰 🔑</p>
-        <input type="date" id="birthday" pattern="\d{4}-\d{2}-\d{2}" required />
+        <input type="date" id="birthday" min="1900-01-01" max="2099-12-31" required />
         <button onclick="submitBirthday()">查詢今日命運</button>
         <div id="result"></div>
     </div>

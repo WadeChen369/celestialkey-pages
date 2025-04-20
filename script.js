@@ -1,8 +1,8 @@
 
 function submitBirthday() {
     const bday = document.getElementById("birthday").value;
-    if (!bday) {
-        document.getElementById("result").textContent = "請先輸入生日";
+    if (!bday || !/^\d{4}-\d{2}-\d{2}$/.test(bday)) {
+        document.getElementById("result").textContent = "請輸入正確的生日格式（yyyy-mm-dd）";
         return;
     }
 
@@ -28,10 +28,7 @@ function submitBirthday() {
     const today = new Date();
     const flow = (today.getDate() + today.getMonth() + 1 + today.getFullYear()) % 9 || 9;
 
-    // 清除預設顯示，未來可由 webhook 回傳內容更新
-    document.getElementById("result").textContent = "";
-
-    // 可在此加入 webhook 呼叫（未來接 n8n）
+    document.getElementById("result").textContent = ""; // 不顯示假結果
     console.log({ 主數: main, 星座: zodiac, 流日: flow });
 }
 
