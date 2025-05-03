@@ -1,10 +1,8 @@
-<script>
 /* ------------ 計算函式 ------------ */
 function calcLifePath(b){
   const digits=b.replace(/\D/g,'').split('').map(Number);
   let s=digits.reduce((a,b)=>a+b,0);
-  const master=[11,22,33];
-  if(master.includes(s)) return s;
+  if([11,22,33].includes(s)) return s;
   while(s>=10) s=s.toString().split('').reduce((a,b)=>a+Number(b),0);
   return s;
 }
@@ -28,55 +26,85 @@ function calcFlowDay(dateObj){
   return (sum%9)||9;
 }
 
-/* ------------ 主流程 ------------ */
-async function submitBirthday(){
-  const debugEl=document.getElementById('debug');
-  debugEl.innerHTML='';                      // 清空 debug
+/* ------------ 初始：產生 today-2 ~ today+6 下拉選單 ------------ */
+function buildBatchList(){
+  const sel=document.getElementById('batchDate');
+  const today=new Date();
+  for(let i=-2;i<=6;i++){
+    const d=new Date(today);
+    d.setDate(d.getDate()+i);
+    const opt=document.createElement('option');
+    opt.value=opt.textContent=d.toISOString().slice(0,10);
+    if(i===0) opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
 
+/* ------------ 三顆快捷鈕 ------------ */
+function pick(delta){
+  const sel=document.getElementById('batchDate');
+  sel.selectedIndex=delta+2; // today 位於索引 2
+  if(delta===2){
+    queryRange(0,2);
+  }else{
+    submitBirthday();
+  }
+}
+
+/* ------------ 主流程 (單日) ------------ */
+async function submitBirthday(){
   const bday=document.getElementById('birthday').value;
   const resEl=document.getElementById('result');
+  const debugEl=document.getElementById('debug');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(bday)){
     resEl.textContent='請輸入正確生日 (YYYY-MM-DD)';
     return;
   }
+  const lp=calcLifePath(bday);
+  const bd=new Date(bday);
+  const zodiac=getZodiac(bd.getMonth()+1, bd.getDate());
 
-  /* 1) 計算三參數 */
-  const lp = calcLifePath(bday);
-  const bd = new Date(bday);
-  const zodiac = getZodiac(bd.getMonth()+1, bd.getDate());
-  const batchDate='2025-05-04';            // 目前固定批次
-  const flow = calcFlowDay(new Date(batchDate)); // → 8
+  const batchDate=document.getElementById('batchDate').value;
+  const flow=calcFlowDay(new Date(batchDate));
 
-  /* 2) 檔案路徑 */
   const file=`${batchDate}_flowday_${flow}_lifepath_${lp}.json`;
-  const url = `daily/${batchDate}/${file}`;
+  const url=`daily/${batchDate}/${file}`;
 
-  /* 3) 顯示計算結果 & 路徑 */
-  debugEl.innerHTML =
+  debugEl.innerHTML=
+    `<strong>批次日期：</strong>${batchDate}<br>`+
     `<strong>生命路徑數：</strong>${lp}<br>`+
     `<strong>星座：</strong>${zodiac}<br>`+
     `<strong>流日：</strong>${flow}<br>`+
     `<strong>檔案路徑：</strong>${url}<br>`;
 
-  /* 4) 抓資料 */
   try{
     const resp=await fetch(url);
     if(!resp.ok) throw new Error('找不到檔案');
-    const raw = await resp.json();
-    const arr = Array.isArray(raw)?raw:JSON.parse(raw.file);
-    const hit = arr.find(o=>o.sign.startsWith(zodiac));
+    const raw=await resp.json();
+    const arr=Array.isArray(raw)?raw:JSON.parse(raw.file);
+    const hit=arr.find(o=>o.sign.startsWith(zodiac));
     if(!hit) throw new Error('星座段落缺失');
-    resEl.innerHTML = hit.message.replace(/\n/g,'<br>');
+    resEl.innerHTML=hit.message.replace(/\n/g,'<br>');
   }catch(e){
     resEl.textContent='讀取資料失敗：'+e.message;
   }
 }
 
-/* ------------ Console 小工具 ------------ */
-function debugPath(b){
-  const lp=calcLifePath(b);
-  const batch='2025-05-04';
-  const flow=calcFlowDay(new Date(batch));
-  console.log(`daily/${batch}/${batch}_flowday_${flow}_lifepath_${lp}.json`);
+/* ------------ 後天三天運勢 ------------ */
+async function queryRange(from,to){
+  const base=new Date();
+  const originalBatch=document.getElementById('batchDate').value;
+  let html='';
+  for(let i=from;i<=to;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i);
+    const str=d.toISOString().slice(0,10);
+    document.getElementById('batchDate').value=str;
+    await submitBirthday();
+    html+=`<h3>${str}</h3>`+document.getElementById('result').innerHTML+'<hr>';
+  }
+  document.getElementById('batchDate').value=originalBatch;
+  document.getElementById('result').innerHTML=html.slice(0,-4);
 }
-</script>
+
+/* ------------ onload ------------ */
+window.addEventListener('DOMContentLoaded',buildBatchList);
