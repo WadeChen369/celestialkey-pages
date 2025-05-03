@@ -60,7 +60,7 @@ async function submitBirthday(){
   const lp=calcLifePath(bday);
   const bd=new Date(bday);
   const zodiac=getZodiac(bd.getMonth()+1, bd.getDate());
-  const batch='2025-05-03';              // DEMO 批次
+  const batch='2025-05-04';              // DEMO 批次
   const flow=calcFlowDay(new Date(batch)); // =8
   const file=`${batch}_flowday_${flow}_lifepath_${lp}.json`;
   const url=`daily/${batch}/${file}`;
@@ -87,7 +87,7 @@ async function submitBirthday(){
 /* ------------ Console 小工具 ------------ */
 function debugPath(b){
   const lp=calcLifePath(b);
-  const batch='2025-05-03';
+  const batch='2025-05-04';
   const flow=calcFlowDay(new Date(batch));
   console.log(`daily/${batch}/${batch}_flowday_${flow}_lifepath_${lp}.json`);
 }
