@@ -75,7 +75,7 @@ async function submitBirthday(){
 /* ------------ Console 小工具 ------------ */
 function debugPath(b){
   const lp=calcLifePath(b);
-  const batch='2025-05-03';
+  const batch='2025-05-04';
   const flow=calcFlowDay(new Date(batch));
   console.log(`daily/${batch}/${batch}_flowday_${flow}_lifepath_${lp}.json`);
 }
