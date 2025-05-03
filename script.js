@@ -44,7 +44,7 @@ async function submitBirthday(){
   const lp = calcLifePath(bday);
   const bd = new Date(bday);
   const zodiac = getZodiac(bd.getMonth()+1, bd.getDate());
-  const batchDate='2025-05-03';            // 目前固定批次
+  const batchDate='2025-05-04';            // 目前固定批次
   const flow = calcFlowDay(new Date(batchDate)); // → 8
 
   /* 2) 檔案路徑 */
