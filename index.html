@@ -1,10 +1,19 @@
 
 <!DOCTYPE html>
-<html lang="zh-Hant"><head><meta charset="UTF-8"><title>Celestial Key DEMO</title>
-<link rel="stylesheet" href="style.css"></head><body>
-<h1>Celestial Key DEMO – 本地批次 2025‑05‑03</h1>
-<p>生日：<input type="date" id="birthday" value="1989-11-27">
-<button onclick="submitBirthday()">查詢</button></p>
-<div id="result" style="margin-top:1em;"></div>
-<script src="script.js"></script>
-</body></html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Celestial Key 命理解說查詢入口</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Celestial Key 命理解說查詢入口</h1>
+        <p>請輸入你的生日，我們將自動計算主數、星座與流日，帶你打開今日命運之鑰 🔑</p>
+        <input type="date" id="birthday" min="1900-01-01" max="2099-12-31" required />
+        <button onclick="submitBirthday()">查詢今日命運</button>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
