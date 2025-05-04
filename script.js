@@ -42,11 +42,10 @@ function buildBatchList(){
 
 /* ------------ 三顆快捷鈕 ------------ */
 function pick(delta){
-  const sel=document.getElementById('batchDate');
-  sel.selectedIndex=delta+2; // today 位於索引 2
-  if(delta===2){
-    queryRange(0,2);
-  }else{
+  const sel = document.getElementById('batchDate');
+  sel.selectedIndex = delta + 2; // today 位於索引 2
+  submitBirthday();
+}else{
     submitBirthday();
   }
 }
@@ -107,4 +106,9 @@ async function queryRange(from,to){
 }
 
 /* ------------ onload ------------ */
-window.addEventListener('DOMContentLoaded',buildBatchList);
+window.addEventListener('DOMContentLoaded', () => {
+  buildBatchList();
+  const bEl = document.getElementById('birthday');
+  bEl.value = '1970-01-01';
+  bEl.max = new Date().toISOString().slice(0, 10);
+});
