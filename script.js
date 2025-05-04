@@ -20,12 +20,13 @@ function getZodiac(m,d){
   if((m==11&&d>=22)||(m==12&&d<=21))return '射手';
   return '摩羯';
 }
-function calcFlowDay(d){
-  const s=d.toISOString().slice(0,10).replace(/\D/g,'').split('').map(Number).reduce((a,b)=>a+b,0);
-  return (s%9)||9;
+function calcFlowDay(dateObj){
+  const str=dateObj.toISOString().slice(0,10).replace(/\D/g,'');
+  const sum=str.split('').map(Number).reduce((a,b)=>a+b,0);
+  return (sum%9)||9;
 }
 
-/* ----------- 產生 today-2 ~ today+6 ----------- */
+/* ------------ 初始：產生 today-2 ~ today+6 下拉選單 ------------ */
 function buildBatchList(){
   const sel=document.getElementById('batchDate');
   const today=new Date();
@@ -39,48 +40,71 @@ function buildBatchList(){
   }
 }
 
-/* ----------- 三顆快捷鈕：昨天(-1) 今天(0) 明天(1) ----------- */
+/* ------------ 三顆快捷鈕 ------------ */
 function pick(delta){
   const sel=document.getElementById('batchDate');
-  sel.selectedIndex = delta + 2;   // today-2 起算
-  submitBirthday();
+  sel.selectedIndex=delta+2; // today 位於索引 2
+  if(delta===2){
+    queryRange(0,2);
+  }else{
+    submitBirthday();
+  }
 }
 
-/* ----------- 單日查詢 ----------- */
+/* ------------ 主流程 (單日) ------------ */
 async function submitBirthday(){
-  const birthday=document.getElementById('birthday').value;
-  const result=document.getElementById('result');
-  const debug=document.getElementById('debug');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(birthday)){
-    result.textContent='請輸入正確生日 (YYYY-MM-DD)';
+  const bday=document.getElementById('birthday').value;
+  const resEl=document.getElementById('result');
+  const debugEl=document.getElementById('debug');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(bday)){
+    resEl.textContent='請輸入正確生日 (YYYY-MM-DD)';
     return;
   }
-  const lp=calcLifePath(birthday);
-  const birthDate=new Date(birthday);
-  const zodiac=getZodiac(birthDate.getMonth()+1, birthDate.getDate());
+  const lp=calcLifePath(bday);
+  const bd=new Date(bday);
+  const zodiac=getZodiac(bd.getMonth()+1, bd.getDate());
 
   const batchDate=document.getElementById('batchDate').value;
   const flow=calcFlowDay(new Date(batchDate));
+
   const file=`${batchDate}_flowday_${flow}_lifepath_${lp}.json`;
   const url=`daily/${batchDate}/${file}`;
 
-  debug.innerHTML=
+  debugEl.innerHTML=
     `<strong>批次日期：</strong>${batchDate}<br>`+
     `<strong>生命路徑數：</strong>${lp}<br>`+
     `<strong>星座：</strong>${zodiac}<br>`+
     `<strong>流日：</strong>${flow}<br>`+
-    `<strong>檔案：</strong>${url}`;
+    `<strong>檔案路徑：</strong>${url}<br>`;
 
   try{
     const resp=await fetch(url);
     if(!resp.ok) throw new Error('找不到檔案');
-    const arr=await resp.json();
+    const raw=await resp.json();
+    const arr=Array.isArray(raw)?raw:JSON.parse(raw.file);
     const hit=arr.find(o=>o.sign.startsWith(zodiac));
     if(!hit) throw new Error('星座段落缺失');
-    result.innerHTML=hit.message.replace(/\n/g,'<br>');
+    resEl.innerHTML=hit.message.replace(/\n/g,'<br>');
   }catch(e){
-    result.textContent='讀取資料失敗：'+e.message;
+    resEl.textContent='讀取資料失敗：'+e.message;
   }
 }
 
+/* ------------ 後天三天運勢 ------------ */
+async function queryRange(from,to){
+  const base=new Date();
+  const originalBatch=document.getElementById('batchDate').value;
+  let html='';
+  for(let i=from;i<=to;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i);
+    const str=d.toISOString().slice(0,10);
+    document.getElementById('batchDate').value=str;
+    await submitBirthday();
+    html+=`<h3>${str}</h3>`+document.getElementById('result').innerHTML+'<hr>';
+  }
+  document.getElementById('batchDate').value=originalBatch;
+  document.getElementById('result').innerHTML=html.slice(0,-4);
+}
+
+/* ------------ onload ------------ */
 window.addEventListener('DOMContentLoaded',buildBatchList);
