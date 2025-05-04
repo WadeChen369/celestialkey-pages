@@ -9,24 +9,22 @@
 <div class="container">
   <h1>🔮 Celestial Key 命理解說查詢入口</h1>
 
-  <p>1️⃣ 請輸入你的生日 (YYYY-MM-DD)</p>
-  <input type="date" id="birthday" required>
+  <label>生日：
+    <input type="date" id="birthday" required>
+  </label><br>
 
-  <p>2️⃣ 選擇批次日期 (today-2 ~ today+6)</p>
-  <select id="batchDate"></select>
+  <label>批次日期 (today-2 ~ today+6)：
+    <select id="batchDate"></select>
+  </label><br>
 
-  <div style="margin:.7rem 0;">
-    <button onclick="pick(0)">今天</button>
-    <button onclick="pick(1)">明天</button>
-    <button onclick="pick(2)">後天 三天運勢</button>
-  </div>
-
+  <button onclick="pick(-1)">昨天</button>
+  <button onclick="pick(0)">今天</button>
+  <button onclick="pick(1)">明天</button>
   <button onclick="submitBirthday()">查詢</button>
 
   <div id="debug" style="margin-top:1rem;color:#666;font-size:.85rem"></div>
   <div id="result"></div>
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>
